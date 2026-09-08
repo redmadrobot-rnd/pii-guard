@@ -1,0 +1,65 @@
+# Fast checks only: lint plus the unit suite. Both run on GitHub-hosted runners
+# and need no secrets, no model weights and no GPU.
+#
+# The quality gate (`pytest -m quality`) is deliberately not here. It needs the
+# NER weights and takes minutes; it belongs in a manually dispatched workflow
+# once the model repo is public.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A new push to the same branch makes the in-flight run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # Pinned on purpose: an unpinned ruff turns every new release into a
+      # red build on code nobody touched.
+      - run: pip install ruff==0.16.1
+      - run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The full range pyproject claims to support. The suite is 0.4 s, so
+        # covering all three costs nothing and keeps the classifiers honest.
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # Installs the rules branch and the test tooling -- no torch, no
+      # transformers, no spaCy model. This step is also the only automated
+      # check that the package installs at all on Linux/x86.
+      - run: pip install ".[dev]"
+
+      # pytest runs against src/ (conftest puts it first on sys.path), so a
+      # broken package layout would not fail the suite. Import the installed
+      # distribution from outside the source tree to catch that separately.
+      - name: import the installed distribution
+        working-directory: ${{ runner.temp }}
+        run: python -c "import pii_guard; from pii_guard import config, operators; print(pii_guard.__version__)"
+
+      - working-directory: ${{ github.workspace }}
+        run: pytest -q

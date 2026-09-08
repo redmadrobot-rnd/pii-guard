@@ -1,0 +1,114 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pii-guard"
+version = "0.1.0"
+description = "Russian-language PII detection, anonymisation and reversible pseudonymisation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+keywords = ["pii", "anonymization", "pseudonymization", "ner", "russian", "presidio"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: Russian",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Security",
+  "Topic :: Text Processing :: Linguistic",
+]
+
+# The rules branch (checksum-validated documents, regex entities, bypass
+# preprocessors) works with these alone -- no ML weights, no torch.
+dependencies = [
+  "presidio-analyzer>=2.2.360",
+  "presidio-anonymizer>=2.2.360",
+  "spacy>=3.8,!=3.7.0",
+  "pymorphy3>=2.0.6",
+  "pymorphy3-dicts-ru",
+  "thefuzz[speedup]>=0.22",
+  "lingua-language-detector>=2.1.1",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Transformer NER: adds the four types no rule can find -- PERSON, LOCATION,
+# PHONE_NUMBER, URL.
+ner = ["torch>=2.0", "transformers>=4.48"]
+# HTTP service wrapper around the library.
+server = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "anyio>=4.6"]
+# Gender guessing for Latin-script names. GPLv3 -- opt-in only, never bundled
+# in the published image. See NOTICE.
+latin-gender = ["gender-guesser>=0.4.0"]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  # fastapi + httpx drive `TestClient` in tests/unit/test_server_api.py. Without
+  # fastapi installed those tests skip, and httpx alone has no consumer.
+  "fastapi>=0.115",
+  "httpx>=0.27",
+  "openpyxl>=3.1",
+]
+
+# Needs the `server` extra; uvicorn is imported inside run(), so a rules-only
+# install fails with a plain ImportError instead of breaking at install time.
+[project.scripts]
+pii-guard-server = "pii_guard_server.main:run"
+
+[project.urls]
+Homepage = "https://github.com/redmadrobot-rnd/pii-guard"
+Model = "https://huggingface.co/redmadrobot-rnd/rubert-base-pii-ner"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pii_guard = ["prompts/*.txt"]
+
+# ==========================================================================
+#   ruff check .            lint
+#   ruff check . --fix      lint + safe autofixes
+#   ruff format .           format
+# ==========================================================================
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["src", "tests"]
+
+extend-exclude = [".venv", "__pycache__", ".mypy_cache", ".ruff_cache", ".pytest_cache"]
+
+[tool.ruff.lint]
+# E/W  pycodestyle, F pyflakes, I isort, UP pyupgrade,
+# B bugbear, C4 comprehensions, SIM simplify
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+  "B008",  # function call in argument default -- FastAPI Depends() idiom
+]
+fixable = ["ALL"]
+unfixable = ["F401", "F841"]  # unused imports/variables removed by hand
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pii_guard", "pii_guard_server"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Bare `pytest` runs the fast suite only. The gate takes minutes and needs model
+# weights, so it is opt-in: `pytest -m quality`.
+addopts = "-m 'not quality'"
+markers = [
+  "quality: quality-gate runs; need model weights and datasets (opt in with -m quality)",
+]

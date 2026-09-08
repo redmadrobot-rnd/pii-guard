@@ -1,0 +1,82 @@
+pii-guard
+Copyright 2026 Red Madrobot
+
+This product includes software developed at Red Madrobot.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+================================================================================
+Third-party components
+================================================================================
+
+Microsoft Presidio (presidio-analyzer, presidio-anonymizer)
+    MIT License -- Copyright (c) Microsoft Corporation
+    https://github.com/microsoft/presidio
+    Used as the detection/anonymisation framework: PatternRecognizer,
+    EntityRecognizer, RecognizerResult, AnonymizerEngine operators.
+
+spaCy
+    MIT License -- Copyright (c) ExplosionAI GmbH
+    https://github.com/explosion/spaCy
+    NLP engine backing Presidio pattern recognizers; POS tagging and dependency
+    parsing for grammatical-case restoration.
+
+spaCy Russian model (ru_core_news_sm)
+    MIT License -- Copyright (c) ExplosionAI GmbH
+    https://github.com/explosion/spacy-models
+    Not redistributed by this project; installed via `python -m spacy download`.
+
+pymorphy3 and pymorphy3-dicts-ru
+    MIT License -- pymorphy3 contributors; dictionaries derived from OpenCorpora
+    https://github.com/no-plagiarism/pymorphy3
+    Russian morphology: gender detection, nominative normalisation, declension.
+
+TheFuzz
+    MIT License -- Copyright (c) SeatGeek
+    https://github.com/seatgeek/thefuzz
+    Fuzzy deduplication of person and location values across a batch.
+
+Lingua
+    Apache License 2.0 -- Copyright (c) Peter M. Stahl
+    https://github.com/pemistahl/lingua-py
+    Language gate for the transliteration preprocessor.
+
+PyTorch and Hugging Face Transformers (optional extra `ner`)
+    BSD-3-Clause / Apache License 2.0
+    https://github.com/pytorch/pytorch
+    https://github.com/huggingface/transformers
+    Inference for the transformer NER model.
+
+redmadrobot-rnd/rubert-base-pii-ner (model weights, distributed separately)
+    Apache License 2.0
+    https://huggingface.co/redmadrobot-rnd/rubert-base-pii-ner
+    Fine-tuned from ai-forever/ruBert-base (Apache License 2.0),
+    https://huggingface.co/ai-forever/ruBert-base
+    Weights are NOT part of this repository; they are downloaded at build or
+    first use.
+
+================================================================================
+Optional extra with a copyleft licence
+================================================================================
+
+gender-guesser (optional extra `latin-gender`)
+    GNU General Public License v3
+    https://pypi.org/project/gender-guesser/
+
+    NOT a dependency of pii-guard and NOT installed in the published container
+    images. It is referenced only by the optional extra `latin-gender`.
+
+    pii-guard itself is Apache-2.0 and does not link against, bundle, or
+    redistribute this package. The code path that uses it is guarded by a
+    try/except ImportError and degrades to gender="unknown" when it is absent;
+    grammatical-case restoration is unaffected, because gender is re-derived
+    from the actual tokens via pymorphy3.
+
+    Installing this extra creates a combined work on your machine that is
+    subject to the GPLv3. If you redistribute such an installation -- including
+    as a container image -- GPLv3 obligations apply to that distribution.
+    Install it only if you understand and accept that.

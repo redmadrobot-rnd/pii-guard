@@ -1,0 +1,27 @@
+{
+  "_note": [
+    "Committed baseline for the regression gate: a run whose micro_f1 falls more",
+    "than PII_MAX_F1_DROP (default 0.02) below this value fails the gate.",
+    "",
+    "Only micro_f1 and dataset_sha256 are read. Machine-specific paths and the",
+    "per-category breakdown are deliberately left out -- the breakdown belongs to",
+    "each run's own report under tests/quality/reports/ (gitignored).",
+    "",
+    "Regenerate: pytest -m quality, then copy micro_f1 and dataset_sha256 out of",
+    "the fresh result.json. The comparison only means something when",
+    "dataset_sha256 matches -- across different datasets the numbers are not",
+    "comparable, which is why require_same_dataset defaults to on."
+  ],
+  "generated_at_utc": "2026-08-04T09:38:29+00:00",
+  "micro_f1": 0.974513,
+  "dataset_sha256": "ee34915b5fe072d9258b4d359b6ee315443fc0204d48cd555eecc8e2d9ca49cf",
+  "provenance": {
+    "engine": "pii-guard 0.1.0",
+    "ner_model": "redmadrobot-rnd/rubert-base-pii-ner",
+    "ner_revision": null,
+    "spacy_model": "ru_core_news_sm 3.8.0",
+    "transport": "local",
+    "device": "cpu",
+    "dataset": "tests/quality/test_data/test.xlsx (3857 cases)"
+  }
+}

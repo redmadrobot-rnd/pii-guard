@@ -1,0 +1,11 @@
+# The build only needs pyproject.toml, the metadata files and src/. Everything
+# else just slows the context transfer to the daemon -- .venv alone is ~1.4 GB.
+*
+!pyproject.toml
+!README.md
+!LICENSE
+!NOTICE
+!src
+src/**/__pycache__
+src/**/*.py[cod]
+src/*.egg-info

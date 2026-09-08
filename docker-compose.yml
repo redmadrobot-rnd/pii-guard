@@ -1,0 +1,35 @@
+# Single service: no queue, no cache, no state store. The pseudonym mapping is
+# returned to the caller, so there is nothing to persist.
+#
+#   docker compose up --build -d
+#   curl -s localhost:8080/health
+services:
+  pii-guard:
+    build:
+      context: .
+      args:
+        # Empty TORCH_INDEX switches to the CUDA wheels; see Dockerfile.
+        TORCH_INDEX: https://download.pytorch.org/whl/cpu
+    image: pii-guard:cpu
+    container_name: pii-guard
+    restart: unless-stopped
+    # Bound to loopback on purpose. This endpoint accepts arbitrary text and
+    # spends CPU on every request -- do not expose it to a network you do not
+    # control without a proxy in front. See docs/usage.md, "Развёртывание".
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      # Uncomment to require Authorization: Bearer <key>. No default on purpose.
+      # - PII_GUARD_API_KEYS=${PII_GUARD_API_KEYS}
+      - PII_GUARD_DEVICE=auto
+      - PII_GUARD_MAX_TEXT_CHARS=100000
+      - PII_GUARD_MAX_TEXTS=64
+      # Weights are baked into the image; keep the runtime off the network.
+      - HF_HUB_OFFLINE=1
+    # No volume on /opt/hf-cache on purpose. The weights are baked into the
+    # image at that path and HF_HUB_OFFLINE=1 keeps the runtime off the network,
+    # so there is nothing to share and nothing to download. A named volume there
+    # would instead shadow the baked weights: Docker fills such a volume only
+    # while it is empty, so after rebuilding with a new NER_MODEL/NER_REVISION
+    # the container would keep serving the previously cached weights and, being
+    # offline, could not correct itself.
