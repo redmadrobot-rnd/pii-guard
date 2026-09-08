@@ -178,6 +178,12 @@ pii-guard-server              # поднять сервис без Docker, по�
 - [CONTRIBUTING.md](CONTRIBUTING.md) — как добавить новый тип сущности
 - [SECURITY.md](SECURITY.md) — сообщить об уязвимости
 
+## Артефакты
+
+- **Модель** — [`redmadrobot-rnd/rubert-base-pii-ner`](https://huggingface.co/redmadrobot-rnd/rubert-base-pii-ner)
+- **Обучающий набор** — [`redmadrobot-rnd/pii_train`](https://huggingface.co/datasets/redmadrobot-rnd/pii_train)
+- **Бенчмарк** — [`redmadrobot-rnd/pii_benchmark`](https://huggingface.co/datasets/redmadrobot-rnd/pii_benchmark)
+
 ## Лицензия
 
 Apache-2.0, веса модели тоже. Копилефта в установке по умолчанию нет.
