@@ -9,6 +9,8 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![Model](https://img.shields.io/badge/model-rubert--base--pii--ner-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/redmadrobot-rnd/rubert-base-pii-ner)
+[![Article](https://img.shields.io/badge/article-redmadrobot.ai-E4002B)](https://redmadrobot.ai/articles/pii-guard)
+[![Habr](https://img.shields.io/badge/article-habr-65A3BE)](https://habr.com/ru/articles/1080440/)
 
 ```mermaid
 flowchart LR
